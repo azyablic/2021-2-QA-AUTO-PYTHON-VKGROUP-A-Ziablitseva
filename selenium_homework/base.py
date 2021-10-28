@@ -2,6 +2,7 @@ import pytest
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
+import selenium_homework.credits as credits
 from .ui import locators
 
 CLICK_RETRY = 10
@@ -27,9 +28,9 @@ class BaseCase:
     def login(self):
         self.click(locators.IN_LOCATOR)
         email = self.find(locators.EMAIL_LOCATOR)
-        email.send_keys("zyablitseva.an@yandex.ru")
+        email.send_keys(credits.email)
         password = self.find(locators.PASSWORD_LOCATOR)
-        password.send_keys("snzGePWva7b5hTE")
+        password.send_keys(credits.password)
         self.click(locators.ENTER_LOCATOR)
 
     def click(self, locator, timeout=None):

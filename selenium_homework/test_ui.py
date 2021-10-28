@@ -2,16 +2,15 @@ from .base import BaseCase
 from .ui import locators
 import pytest
 import time
+import selenium_homework.credits as credits
 
 
 class TestOne(BaseCase):
-    def test_title(self):
-        assert "myTarget" in self.driver.title
-
     @pytest.mark.UI("UI")
     def test_login(self):
         BaseCase.login(self)
-        assert "zyablitseva.an@yandex.ru" in self.driver.page_source
+        time.sleep(5)
+        assert 'Кампании' in self.driver.title
 
     @pytest.mark.UI("UI")
     def test_logout(self):
@@ -20,7 +19,7 @@ class TestOne(BaseCase):
         BaseCase.click(self, locators.RIGHT_SIDE_BUTTON)
         time.sleep(5)
         BaseCase.click(self, locators.LOGOUT_BUTTON)
-        assert "zyablitseva.an@yandex.ru" not in self.driver.page_source
+        assert 'Кампании' not in self.driver.title
 
     @pytest.mark.UI("UI")
     def test_change_contact_info(self):
@@ -29,27 +28,27 @@ class TestOne(BaseCase):
         BaseCase.click(self, locators.PROFILE_BUTTON)
         name = BaseCase.find(self, locators.NAME_LOCATOR).clear()
         name = BaseCase.find(self, locators.NAME_LOCATOR)
-        name.send_keys("qwertyu")
+        name.send_keys(credits.name)
         phone = BaseCase.find(self, locators.PHONE_LOCATOR).clear()
         phone = BaseCase.find(self, locators.PHONE_LOCATOR)
-        phone.send_keys("+71111111111")
+        phone.send_keys(credits.phone)
         BaseCase.click(self, locators.SUBMIT_BUTTON)
         name = BaseCase.find(self, locators.NAME_LOCATOR)
-        assert name.get_attribute('value') == 'qwertyu'
+        assert name.get_attribute('value') == credits.name
 
     @pytest.mark.UI("UI")
-    @pytest.mark.parametrize(['locator', 'url'],
+    @pytest.mark.parametrize(['locator', 'title'],
                              [
                                  pytest.param(
-                                     locators.BILLING_BUTTON, 'https://target.my.com/billing'
+                                     locators.BILLING_BUTTON, 'Лицевой счет'
                                  ),
                                  pytest.param(
-                                     locators.PRO_BUTTON, 'https://target.my.com/pro'
+                                     locators.PRO_BUTTON, 'myTarget Pro'
                                  )
                              ]
                              )
-    def test_change_pages(self, locator, url):
+    def test_change_pages(self, locator, title):
         BaseCase.login(self)
         BaseCase.wait_before_click(self, locator)
         BaseCase.click(self, locator)
-        assert url == self.driver.current_url
+        assert title in self.driver.title

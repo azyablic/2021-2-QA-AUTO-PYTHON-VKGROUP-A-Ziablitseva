@@ -8,4 +8,4 @@ def driver():
     browser.maximize_window()
     browser.get("https://target.my.com/")
     yield browser
-    browser.close()
+    browser.quit()
