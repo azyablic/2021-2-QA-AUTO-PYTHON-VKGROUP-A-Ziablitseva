@@ -14,16 +14,13 @@ class BaseCase:
     def setup(self, driver):
         self.driver = driver
 
-    def find(self, locator):
-        return self.driver.find_element(*locator)
+    def find(self, locator, timeout=None):
+        return self.wait(timeout).until(EC.presence_of_element_located(locator))
 
     def wait(self, timeout=None):
         if timeout is None:
             timeout = 5
         return WebDriverWait(self.driver, timeout=timeout)
-
-    def wait_before_click(self, locator):
-        return self.wait(15).until(EC.presence_of_element_located(locator))
 
     def login(self):
         self.click(locators.IN_LOCATOR)

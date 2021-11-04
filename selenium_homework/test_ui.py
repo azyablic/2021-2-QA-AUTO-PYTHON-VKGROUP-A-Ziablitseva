@@ -1,7 +1,6 @@
 from .base import BaseCase
 from .ui import locators
 import pytest
-import time
 import selenium_homework.credits as credits
 
 
@@ -9,22 +8,18 @@ class TestOne(BaseCase):
     @pytest.mark.UI("UI")
     def test_login(self):
         BaseCase.login(self)
-        time.sleep(5)
-        assert 'Кампании' in self.driver.title
+        assert BaseCase.find(self, locators.PROFILE_BUTTON).is_displayed()
 
     @pytest.mark.UI("UI")
     def test_logout(self):
         BaseCase.login(self)
-        time.sleep(5)
         BaseCase.click(self, locators.RIGHT_SIDE_BUTTON)
-        time.sleep(5)
-        BaseCase.click(self, locators.LOGOUT_BUTTON)
-        assert 'Кампании' not in self.driver.title
+        BaseCase.click(self, locators.LOGOUT_BUTTON, 15)
+        assert BaseCase.find(self, locators.IN_LOCATOR, 15).is_displayed()
 
     @pytest.mark.UI("UI")
     def test_change_contact_info(self):
         BaseCase.login(self)
-        BaseCase.wait_before_click(self, locators.PROFILE_BUTTON)
         BaseCase.click(self, locators.PROFILE_BUTTON)
         name = BaseCase.find(self, locators.NAME_LOCATOR).clear()
         name = BaseCase.find(self, locators.NAME_LOCATOR)
@@ -37,18 +32,17 @@ class TestOne(BaseCase):
         assert name.get_attribute('value') == credits.name
 
     @pytest.mark.UI("UI")
-    @pytest.mark.parametrize(['locator', 'title'],
+    @pytest.mark.parametrize(['locator_to_search', 'locator_to_check'],
                              [
                                  pytest.param(
-                                     locators.BILLING_BUTTON, 'Лицевой счет'
+                                     locators.BILLING_BUTTON, locators.DEPOSIT_LOCATOR
                                  ),
                                  pytest.param(
-                                     locators.PRO_BUTTON, 'myTarget Pro'
+                                     locators.PRO_BUTTON, locators.PRO_LOGO
                                  )
                              ]
                              )
-    def test_change_pages(self, locator, title):
+    def test_change_pages(self, locator_to_search, locator_to_check):
         BaseCase.login(self)
-        BaseCase.wait_before_click(self, locator)
-        BaseCase.click(self, locator)
-        assert title in self.driver.title
+        BaseCase.click(self, locator_to_search)
+        assert BaseCase.find(self, locator_to_check).is_displayed()
