@@ -1,0 +1,16 @@
+from selenium.webdriver.common.by import By
+
+IN_LOCATOR = (By.XPATH, "//div[contains(@class,'responseHead-module-button')]")
+EMAIL_LOCATOR = (By.NAME, "email")
+PASSWORD_LOCATOR = (By.NAME, "password")
+ENTER_LOCATOR = (By.XPATH, "//div[contains(@class,'authForm-module-button')]")
+RIGHT_SIDE_BUTTON = (By.XPATH, "//div[contains(@class,'rightButton')]")
+LOGOUT_BUTTON = (By.XPATH, "//a[@href='/logout']")
+PROFILE_BUTTON = (By.XPATH, "//a[@href='/profile']")
+NAME_LOCATOR = (By.XPATH, "//div[@data-name='fio']//child::input")
+PHONE_LOCATOR = (By.XPATH, "//div[@data-name='phone']//child::input")
+SUBMIT_BUTTON = (By.XPATH, "//button[contains(@class,'button_submit')]")
+BILLING_BUTTON = (By.XPATH, "//a[@href='/billing']")
+PRO_BUTTON = (By.XPATH, "//a[@href='/pro']")
+DEPOSIT_LOCATOR = (By.XPATH, "//li[@data-type='deposit']")
+PRO_LOGO = (By.XPATH, "//img[contains(@src,'https://target.my.com/rb3_tilda_files/54/9E5F6E.svg')]")
