@@ -1,3 +1,4 @@
+import allure
 from .base_page import BasePage
 from selenium_homework_2.ui.locators import LoginPageLocators
 from .main_page import MainPage
@@ -7,6 +8,7 @@ class LoginPage(BasePage):
     locators = LoginPageLocators
     url = 'https://target.my.com/'
 
+    @allure.step('Login')
     def login(self, email_value, password_value):
         self.click(self.locators.IN_LOCATOR)
         email = self.find(self.locators.EMAIL_LOCATOR)

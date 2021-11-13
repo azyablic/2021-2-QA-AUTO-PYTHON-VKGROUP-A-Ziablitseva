@@ -1,3 +1,4 @@
+import allure
 from .base_page import BasePage
 from selenium_homework_2.ui.locators import CampaignPageLocators
 from faker import Faker
@@ -9,6 +10,7 @@ import os
 class CampaignPage(BasePage):
     locators = CampaignPageLocators
 
+    @allure.step('Creating company')
     def create_campaign(self):
         self.click(self.locators.CREATE_BUTTON)
         self.click(self.locators.TRAFFIC_BUTTON)
@@ -45,9 +47,7 @@ class CampaignPage(BasePage):
         color = tuple(map(int, Faker().rgb_color().split(',')))
         size = (240, 400)
         img = Image.new('RGB', size, color)
-        img_name = Faker().color_name()
-        path = os.path.join(
-            "C:\\Users\Anna Zyabliceva\PycharmProjects\\2021-2-QA-AUTO-PYTHON-VKGROUP-A-Ziablitseva\selenium_homework_2\\files",
-            f"{img_name}.png")
+        img_name = f'{Faker().color_name()}.png'
+        path = os.path.abspath(f'../selenium_homework_2/files/{img_name}')
         img.save(path)
         return path

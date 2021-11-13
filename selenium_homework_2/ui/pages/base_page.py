@@ -1,3 +1,4 @@
+import allure
 from selenium.common.exceptions import StaleElementReferenceException, NoSuchElementException, TimeoutException
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -17,6 +18,7 @@ class BasePage(object):
     def find(self, locator, timeout=None):
         return self.wait(timeout).until(EC.presence_of_element_located(locator))
 
+    @allure.step('Clicking on {locator}')
     def click(self, locator, timeout=None):
         for i in range(CLICK_RETRY):
             try:

@@ -28,7 +28,6 @@ class CampaignPageLocators:
     CREATE_BUTTON = (By.XPATH, "//div[contains(@class, 'create')]/child::div[contains(@class, 'button')]")
     TRAFFIC_BUTTON = (By.XPATH, "//div[contains(@class,'traffic')]")
     INPUT_URL = (By.XPATH, "//input[contains(@class,'Url')]")
-    CAROUSEL_BUTTON = (By.XPATH, "//div[contains(@id,'carousel')]")
     BANNER_BUTTON = (By.XPATH, "//div[contains(@id, 'banner')]")
     INPUT_IMAGE = (By.XPATH, "//div[contains(@class,'upload')]/child::input[@type='file']")
     SUBMIT_BUTTON = (By.XPATH, "//div[contains(@class, 'footer')]/child::button[contains(@class,'button_submit')]")
