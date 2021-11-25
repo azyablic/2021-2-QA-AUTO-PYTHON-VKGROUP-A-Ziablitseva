@@ -1,5 +1,6 @@
 from urllib.parse import urljoin
 import requests
+import api.credits as credits
 
 
 class ApiClient:
@@ -11,21 +12,20 @@ class ApiClient:
 
     def post_login(self, email, password):
         headers = {
-            'Referer': 'https://target.my.com/'
+            'Referer': self.base_url
         }
 
         data = {
             'email': email,
             'password': password,
-            'continue': 'https://target.my.com/auth/mycom?state=target_login%3D1%26ignore_opener%3D1#email'
+            'continue': credits.data_login_continue_url
         }
-        self.session.post('https://auth-ac.my.com/auth?lang=ru&nosavelogin=0', headers=headers, data=data,
+        self.session.post(credits.login_url, headers=headers, data=data,
                           allow_redirects=True)
         self.csrf_token = self.get_token()
 
     def get_token(self):
-        headers = self.session.get(urljoin(self.base_url, 'csrf/')).headers['Set-Cookie'].split(';')
-        csrf_token = [h for h in headers if 'csrftoken' in h][0].split('=')[-1]
+        csrf_token = self.session.get(credits.csrf_token_url).cookies.get('csrftoken')
         return csrf_token
 
     def post_upload_image(self, image):
@@ -35,14 +35,12 @@ class ApiClient:
         headers = {
             'X-CSRFToken': self.csrf_token
         }
-        response = self.session.post(urljoin(self.base_url, '/api/v2/content/static.json'), headers=headers, files=file)
-        json_response = response.json()
-        return json_response['id']
+        response = self.session.post(credits.upload_image_url, headers=headers, files=file)
+        return response
 
     def get_url_id(self, url):
         response = self.session.get(urljoin(self.base_url, f'/api/v1/urls/?url={url}'))
-        json_response = response.json()
-        return json_response['id']
+        return response
 
     def post_create_campaign(self, name, image_id, url_id, objective='traffic', package_id=961):
         headers = {
@@ -53,15 +51,15 @@ class ApiClient:
             "name": name,
             "objective": objective, "package_id": package_id
         }
-        response = self.session.post(urljoin(self.base_url, '/api/v2/campaigns.json'), headers=headers, json=json)
-        json_response = response.json()
-        return json_response['id']
+        response = self.session.post(credits.campaigns_url, headers=headers, json=json)
+        return response
 
     def delete_campaign(self, campaign_id):
         headers = {
             'X-CSRFToken': self.csrf_token
         }
         response = self.session.delete(urljoin(self.base_url, f'api/v2/campaigns/{campaign_id}.json'), headers=headers)
+        assert response.status_code == 204
         return response
 
     def post_create_segment(self, name, pass_condition, object_type, left=365, right=0, seg_type='positive'):
@@ -73,20 +71,18 @@ class ApiClient:
             'pass_condition': pass_condition,
             "relations": [{"object_type": object_type, "params": {"left": left, "right": right, "type": seg_type}}]
         }
-        response = self.session.post(urljoin(self.base_url, '/api/v2/remarketing/segments.json?fields=id,name'),
+        response = self.session.post(credits.segments_url,
                                      headers=headers, json=json)
-        json_response = response.json()
-        return json_response['id']
+        return response
 
     def post_delete_segment(self, segment_id, source_type='segment'):
         headers = {
             'X-CSRFToken': self.csrf_token
         }
         json = [{"source_id": segment_id, "source_type": source_type}]
-        response = self.session.post(urljoin(self.base_url, '/api/v1/remarketing/mass_action/delete.json'),
+        response = self.session.post(credits.delete_segments_url,
                                      headers=headers, json=json)
-        json_response = response.json()
-        return json_response['successes'][0]['source_id']
+        return response
 
     def get_segment_status_code(self, segment_id):
         response = self.session.get(urljoin(self.base_url, f'/api/v2/remarketing/segments/{segment_id}.json'))
@@ -94,4 +90,15 @@ class ApiClient:
 
     def get_campaign_status(self, campaign_id):
         response = self.session.get(urljoin(self.base_url, f'/api/v2/campaigns/{campaign_id}.json?fields=issues'))
+        assert response.status_code == 200
         return response.json().get('issues')[0]['code']
+
+    @property
+    def get_segments_id(self):
+        res = self.session.get(credits.segments_url)
+        return [x['id'] for x in res.json()['items']]
+
+    @property
+    def get_campaigns_id(self):
+        res = self.session.get(urljoin(credits.campaigns_url, '?limit=250')).json()
+        return [x['id'] for x in res['items']]

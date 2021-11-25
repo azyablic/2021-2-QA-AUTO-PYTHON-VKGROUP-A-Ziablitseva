@@ -1,7 +1,8 @@
 import pytest
-from .api.client import ApiClient
+from api.client import ApiClient
+import api.credits as credits
 
 
 @pytest.fixture(scope='session')
 def api_client():
-    return ApiClient("https://target.my.com/")
+    return ApiClient(credits.base_url)
