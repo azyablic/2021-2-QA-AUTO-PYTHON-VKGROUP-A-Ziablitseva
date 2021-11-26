@@ -34,7 +34,7 @@ class ApiBase:
     def create_campaign(self):
         url_id = self.get_url_id()
         image_id = self.get_image_id()
-        name = fake.company()
+        name = fake.word()
         response = self.api_client.post_create_campaign(name=name, image_id=image_id, url_id=url_id)
         assert response.status_code == 200
         campaign_id = response.json()['id']

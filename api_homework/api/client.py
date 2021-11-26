@@ -95,10 +95,12 @@ class ApiClient:
 
     @property
     def get_segments_id(self):
-        res = self.session.get(credits.segments_url)
-        return [x['id'] for x in res.json()['items']]
+        response = self.session.get(credits.segments_url)
+        assert response.status_code == 200
+        return [x['id'] for x in response.json()['items']]
 
     @property
     def get_campaigns_id(self):
-        res = self.session.get(urljoin(credits.campaigns_url, '?limit=250')).json()
-        return [x['id'] for x in res['items']]
+        response = self.session.get(urljoin(credits.campaigns_url, '?limit=250'))
+        assert response.status_code == 200
+        return [x['id'] for x in response.json()['items']]
