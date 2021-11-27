@@ -1,0 +1,10 @@
+base_url = 'https://target.my.com/'
+login_url = 'https://auth-ac.my.com/auth?lang=ru&nosavelogin=0'
+data_login_continue_url = 'https://target.my.com/auth/mycom?state=target_login%3D1%26ignore_opener%3D1#email'
+csrf_token_url = 'https://target.my.com/csrf/'
+upload_image_url = 'https://target.my.com/api/v2/content/static.json'
+campaigns_url = 'https://target.my.com/api/v2/campaigns.json'
+segments_url = 'https://target.my.com/api/v2/remarketing/segments.json?fields=id,name'
+delete_segments_url = 'https://target.my.com/api/v1/remarketing/mass_action/delete.json'
+email = "zyablitseva.an@yandex.ru"
+password = "snzGePWva7b5hTE"
