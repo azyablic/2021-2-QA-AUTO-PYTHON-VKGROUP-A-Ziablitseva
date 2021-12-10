@@ -4,8 +4,7 @@ from mysql.mysql_builder import MysqlBuilder
 from mysql.client import MysqlClient
 from models.model import RequestsAmount, Top10Requests, Top5ClientError, Top5ServerError, CountByType
 
-from log_parser import get_top_5_client_error, get_top_10_requests, get_count_by_type, get_requests_amount, \
-    get_top_5_server_error
+from log_parser import LogParser
 
 
 class MysqlBase:
@@ -17,9 +16,10 @@ class MysqlBase:
         return self.mysql.session.query(query_type).all()
 
     @pytest.fixture(scope='function', autouse=True)
-    def setup(self, mysql_client):
+    def setup(self, mysql_client, config):
         self.mysql: MysqlClient = mysql_client
-        self.mysql_builder: MysqlBuilder = MysqlBuilder(self.mysql)
+        self.mysql_builder: MysqlBuilder = MysqlBuilder(mysql_client, config)
+        self.log_parser = LogParser(config['file_name'])
 
         self.prepare()
 
@@ -31,9 +31,8 @@ class TestRequestsAmount(MysqlBase):
 
     def test_requests_amount(self):
         result = self.get_rows(RequestsAmount)
-        print(result)
         assert len(result) == 1
-        assert result[0].count == get_requests_amount()
+        assert result[0].count == self.log_parser.get_requests_amount()
 
 
 class TestRequestsAmountByType(MysqlBase):
@@ -43,8 +42,7 @@ class TestRequestsAmountByType(MysqlBase):
 
     def test_count_by_type(self):
         result = self.get_rows(CountByType)
-        print(result)
-        assert len(result) == len(get_count_by_type())
+        assert len(result) == len(self.log_parser.get_count_by_type())
 
 
 class TestTop10Requests(MysqlBase):
@@ -54,8 +52,7 @@ class TestTop10Requests(MysqlBase):
 
     def test_top_10_requests(self):
         result = self.get_rows(Top10Requests)
-        print(result)
-        assert len(result) == len(get_top_10_requests())
+        assert len(result) == len(self.log_parser.get_top_10_requests())
 
 
 class TestTop5ServerError(MysqlBase):
@@ -65,8 +62,7 @@ class TestTop5ServerError(MysqlBase):
 
     def test_top_5_server_error(self):
         result = self.get_rows(Top5ServerError)
-        print(result)
-        assert len(result) == len(get_top_5_server_error())
+        assert len(result) == len(self.log_parser.get_top_5_server_error())
 
 
 class TestTop5ClientError(MysqlBase):
@@ -76,5 +72,4 @@ class TestTop5ClientError(MysqlBase):
 
     def test_top_5_client_error(self):
         result = self.get_rows(Top5ClientError)
-        print(result)
-        assert len(result) == len(get_top_5_client_error())
+        assert len(result) == len(self.log_parser.get_top_5_client_error())

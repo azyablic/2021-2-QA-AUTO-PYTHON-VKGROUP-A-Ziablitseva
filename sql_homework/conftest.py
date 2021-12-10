@@ -24,3 +24,14 @@ def mysql_client():
     mysql_client.connect()
     yield mysql_client
     mysql_client.connection.close()
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        '--file_name', default='access.log'
+    )
+
+
+@pytest.fixture(scope='session')
+def config(request):
+    return {'file_name': request.config.getoption('--file_name')}

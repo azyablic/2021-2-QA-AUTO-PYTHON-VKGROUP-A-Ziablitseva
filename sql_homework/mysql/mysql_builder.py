@@ -1,15 +1,15 @@
 from models.model import RequestsAmount, CountByType, Top5ServerError, Top5ClientError, Top10Requests
-from log_parser import get_top_5_server_error, get_requests_amount, get_count_by_type, get_top_10_requests, \
-    get_top_5_client_error
+from log_parser import LogParser
 
 
 class MysqlBuilder:
 
-    def __init__(self, client):
+    def __init__(self, client, config):
         self.client = client
+        self.log_parser = LogParser(config['file_name'])
 
     def create_requests_amount(self):
-        count = get_requests_amount()
+        count = self.log_parser.get_requests_amount()
         request_amount = RequestsAmount(
             count=count
         )
@@ -18,7 +18,7 @@ class MysqlBuilder:
         return request_amount
 
     def create_count_by_type(self):
-        parsed_data = get_count_by_type()
+        parsed_data = self.log_parser.get_count_by_type()
         count_by_type = []
         for type, count in parsed_data.items():
             row = CountByType(
@@ -31,7 +31,7 @@ class MysqlBuilder:
         return count_by_type
 
     def create_top_5_server_error(self):
-        parsed_data = get_top_5_server_error()
+        parsed_data = self.log_parser.get_top_5_server_error()
         top_5_server_error = []
         for ip, count in parsed_data:
             row = Top5ServerError(
@@ -44,7 +44,7 @@ class MysqlBuilder:
         return top_5_server_error
 
     def create_top_5_client_error(self):
-        parsed_data = get_top_5_client_error()
+        parsed_data = self.log_parser.get_top_5_client_error()
         top_5_client_error = []
         for url, status, size, ip in parsed_data:
             row = Top5ClientError(
@@ -59,7 +59,7 @@ class MysqlBuilder:
         return top_5_client_error
 
     def create_top_10_requests(self):
-        parsed_data = get_top_10_requests()
+        parsed_data = self.log_parser.get_top_10_requests()
         top_10_requests = []
         for url, count in parsed_data.items():
             row = Top10Requests(
