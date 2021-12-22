@@ -1,15 +1,18 @@
 import json
 import socket
 import logging
+import mock_homework.settings as settings
 
 logger = logging.getLogger('test')
 
 
 class Client:
-    def __init__(self, host, port):
+    def __init__(self, host=settings.MOCK_HOST, port=settings.MOCK_PORT):
         self.host = host
-        self.port = int(port)
+        self.port = port
+        self.client = None
 
+    def connect(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client.settimeout(0.1)
         self.client.connect((self.host, self.port))
@@ -29,49 +32,45 @@ class Client:
                     f'{response[6]}'
                     )
 
-    def request(self, method,  location, data=None, content_type='application/json'):
-        if data is None:
+    def _request(self, method, location, data=None):
+        self.connect()
+        if method == 'GET' or method == 'DELETE':
+            request = f'{method} {location} HTTP/1.1\r\nHost:{self.host}\r\n\r\n'
+        elif method == 'PUT' or method == 'POST':
+            data = json.dumps(data)
             request = f'{method} {location} HTTP/1.1\r\n' \
-                      f'Host: {self.host}:{self.port}\r\n\r\n'
-
-        else:
-            if content_type == 'application/json':
-                data = json.dumps(data)
-            request = f'{method} {location} HTTP/1.1\r\n' \
-                      f'Host: {self.host}\r\n\r\n' \
-                      f'Content-type:{content_type}\r\n' \
+                      f'Host:{self.host}\r\n' \
+                      f'Content-Type: application/json\r\n' \
                       f'Content-Length: {len(data)}\r\n' \
-                      f'{data}\r\n'
+                      f'\r\n{data}'
 
         self.log_pre(request)
-
         self.client.send(request.encode())
-        response = self.get_data(self.client)
+        response = self.get_data()
         self.log_post(response)
         return response
 
-    def post(self, data=None, location='/', content_type='application/json'):
-        return self.request('POST', location, data, content_type)
+    def post(self, data=None, location='/'):
+        return self._request(method='POST', location=location, data=data)
 
     def get(self, location='/'):
-        return self.request(method='GET', location=location)
+        return self._request(method='GET', location=location)
 
-    def put(self, data=None, location='/', content_type='application/json'):
-        return self.request('PUT', location, data, content_type)
+    def put(self, data=None, location='/'):
+        return self._request(method='PUT', location=location, data=data)
 
     def delete(self, location='/'):
-        return self.request(method='DELETE', location=location)
+        return self._request(method='DELETE', location=location)
 
-    @staticmethod
-    def get_data(client):
+    def get_data(self):
         total_data = []
 
         while True:
-            data = client.recv(4096)
+            data = self.client.recv(4096)
             if data:
                 total_data.append(data.decode())
             else:
-                client.close()
+                self.client.close()
                 break
 
         data = ''.join(total_data).splitlines()

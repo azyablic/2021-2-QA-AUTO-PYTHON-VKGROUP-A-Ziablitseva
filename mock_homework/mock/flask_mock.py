@@ -20,24 +20,23 @@ def get_user_surname(name):
 
 @app.route('/add_user', methods=['POST'])
 def post_user_surname():
-    data = request.json()
-    name = list(data.keys())[0]
-    surname = data[name]
+    name = json.loads(request.data)['name']
+    surname = json.loads(request.data)['surname']
     if name in SURNAME_DATA.keys():
         return json.dumps(f'User {name} already exists'), 400
     else:
         SURNAME_DATA[name] = surname
-        return json.dumps({name: surname}), 201
+        return json.dumps({name: surname}), 200
 
 
 @app.route('/put_surname/<name>', methods=['PUT'])
 def put_user_surname(name):
-    new_surname = request.get_json()['surname']
     if name in SURNAME_DATA.keys():
+        new_surname = json.loads(request.data)['surname']
         SURNAME_DATA[name] = new_surname
-        return json.dumps({name: SURNAME_DATA[name]}), 201
+        return json.dumps({name: SURNAME_DATA[name]}), 200
     else:
-        return json.dumps(f'User {name} not fount'), 400
+        return json.dumps(f'User {name} not found'), 400
 
 
 @app.route('/delete_surname/<name>', methods=['DELETE'])
@@ -48,6 +47,7 @@ def delete_user_surname(name):
     else:
         return json.dumps(f'User {name} not found'), 404
 
+
 def run_mock():
     server = threading.Thread(target=app.run, kwargs={
         'host': settings.MOCK_HOST,
@@ -55,6 +55,7 @@ def run_mock():
     })
     server.start()
     return server
+
 
 def shutdown_mock():
     terminate_func = request.environ.get('werkzeug.server.shutdown')
@@ -65,4 +66,4 @@ def shutdown_mock():
 @app.route('/shutdown')
 def shutdown():
     shutdown_mock()
-    return json.dumps(f'Ok, exiting'), 200
+    return json.dumps('Ok, exiting'), 200
